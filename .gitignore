@@ -1,0 +1,27 @@
+# Object files:
+*.o
+*.exe
+
+# Build and resourse files:
+build/
+res/
+
+# Course testworks:
+homework/control-*/
+
+# Student homeworks:
+homework/contest-*/problem-*/*.c
+homework/contest-*/problem-*/*.asm
+
+# Generated test inputs/outputs:
+homework/contest-*/problem-*/tests/*-gen.input
+homework/contest-*/problem-*/tests/*-gen.output
+examples/*/tests/*-gen.input
+examples/*/tests/*-gen.output
+
+# CTags printout:
+.tags
+
+# IDE trash:
+.vscode/
+.cache/
