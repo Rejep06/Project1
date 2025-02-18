@@ -14,10 +14,10 @@ namespace LongNumberArithmetics
 
     public:
         LongNumber(int64_t x, int per);
-        ~LongNumber();
+        ~LongNumber() = default;
 
         LongNumber(long double x, int per);
-        LongNumber(const LongNumber &that);
+        LongNumber(const LongNumber &that) = default;
 
         LongNumber &operator=(const LongNumber &that);
         LongNumber &operator+(const LongNumber &that);

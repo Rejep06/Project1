@@ -8,9 +8,7 @@ const uint64_t MAXNUM = (1ull << 32);
 
 using LongNumber = LongNumberArithmetics::LongNumber;
 
-
-
-//Конструкторы:
+// Конструкторы:
 
 LongNumber::LongNumber(int64_t x, int per)
 {
@@ -34,7 +32,6 @@ LongNumber::LongNumber(int64_t x, int per)
         nums.push_back(0);
     }
 }
-
 
 LongNumber::LongNumber(long double x, int per)
 {
@@ -77,22 +74,6 @@ LongNumber::LongNumber(long double x, int per)
     }
 
     nums[nums.size() - 1] &= static_cast<uint32_t>(-(1 << (32 - (percision % 32))));
-}
-
-LongNumber::LongNumber(const LongNumber &that)
-{
-    percision32 = that.percision32;
-    percision = that.percision;
-    nums = that.nums;
-}
-
-// Деструктор
-
-LongNumber::~LongNumber()
-{
-    percision32 = 0;
-    percision = 0;
-    nums.clear();
 }
 
 // Присваивание
@@ -256,7 +237,7 @@ std::deque<uint32_t> LongSub(std::deque<uint32_t> a, std::deque<uint32_t> b, int
 
 -1 a > b
  0 a == b
- 1 a < b 
+ 1 a < b
 */
 
 int LongBig(std::deque<uint32_t> a, std::deque<uint32_t> b, int per1, int per2)
@@ -399,7 +380,6 @@ LongNumber &LongNumber::operator*(const LongNumber &that)
     return *this;
 }
 
-
 // Функция деления
 std::deque<uint32_t> LongDiv(std::deque<uint32_t> a, std::deque<uint32_t> b, int per)
 {
@@ -458,9 +438,12 @@ bool LongNumber::operator==(const LongNumber &that)
 }
 
 // метод проверка на ноль
-bool LongNumber::isZero() const {
-    for (uint32_t num : nums) {
-        if (num != 0) {
+bool LongNumber::isZero() const
+{
+    for (uint32_t num : nums)
+    {
+        if (num != 0)
+        {
             return false;
         }
     }
@@ -516,7 +499,6 @@ bool LongNumber::operator<(const LongNumber &that)
     }
 }
 
-
 // оператор >
 bool LongNumber::operator>(const LongNumber &that)
 {
@@ -553,7 +535,7 @@ void LongNumber::PrintLongNumber()
               << percision << '\n';
 }
 
-// 
+//
 LongNumber LongNumberArithmetics::operator""_longnum(long double number)
 {
     return LongNumber(number, 0);
