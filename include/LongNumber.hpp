@@ -19,7 +19,7 @@ namespace LongNumberArithmetics
         LongNumber(long double x, int per);
         LongNumber(const LongNumber &that) = default;
 
-        LongNumber &operator=(const LongNumber &that);
+        LongNumber &operator=(const LongNumber &that) = default;
         LongNumber &operator+(const LongNumber &that);
         LongNumber &operator-(const LongNumber &that);
         LongNumber &operator*(const LongNumber &that);

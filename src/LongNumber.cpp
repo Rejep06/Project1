@@ -76,18 +76,7 @@ LongNumber::LongNumber(long double x, int per)
     nums[nums.size() - 1] &= static_cast<uint32_t>(-(1 << (32 - (percision % 32))));
 }
 
-// Присваивание
-
-LongNumber &LongNumber::operator=(const LongNumber &that)
-{
-    percision32 = that.percision32;
-    percision = that.percision;
-    nums = that.nums;
-    return *this;
-}
-
 // функция для суммы
-
 std::deque<uint32_t> LongSum(std::deque<uint32_t> a, std::deque<uint32_t> b, int per1, int per2)
 {
     std::deque<uint32_t> sum;
@@ -149,7 +138,6 @@ std::deque<uint32_t> LongSum(std::deque<uint32_t> a, std::deque<uint32_t> b, int
 }
 
 // функция вычитание
-
 std::deque<uint32_t> LongSub(std::deque<uint32_t> a, std::deque<uint32_t> b, int per1, int per2)
 {
     std::deque<uint32_t> sub;
@@ -239,7 +227,6 @@ std::deque<uint32_t> LongSub(std::deque<uint32_t> a, std::deque<uint32_t> b, int
  0 a == b
  1 a < b
 */
-
 int LongBig(std::deque<uint32_t> a, std::deque<uint32_t> b, int per1, int per2)
 {
     while (a.size() - per1 > 1 && a[0] == 0)
