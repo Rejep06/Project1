@@ -453,7 +453,7 @@ LongNumber &LongNumber::operator/(const LongNumber &that)
             nums2.push_back(0);
     }
     percision32 = std::max(percision32, that.percision32);
-    // надо проверить деление на ноль!
+
     nums = LongDiv(nums, nums2, percision32);
     sign = sign * that.sign;
     return *this;
@@ -525,5 +525,5 @@ void LongNumber::PrintLongNumber()
 //
 LongNumber LongNumberArithmetics::operator""_longnum(long double number)
 {
-    return LongNumber(number, 0);
+    return LongNumber(number, 32);
 }
