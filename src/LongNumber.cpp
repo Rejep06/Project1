@@ -47,29 +47,28 @@ LongNumber::LongNumber(long double x, int per)
 
     uint64_t y = static_cast<uint64_t>(std::trunc(x));
     x -= static_cast<long double>(y);
-
+    if (y == 0)
+        nums.push_front(0);
     while (y)
     {
         nums.push_front(static_cast<uint32_t>(y % MAXNUM));
         y /= MAXNUM;
     }
 
-    uint64_t r = 1;
-    while (x - trunc(x) > 0 && x * 100.0 < 4294967296.0)
-    {
-        x *= 10.0;
-        r *= 10;
-    }
-
-    uint64_t a = static_cast<uint64_t>(trunc(x));
+    x -= trunc(x);
 
     int p = percision;
     while (p > 0)
     {
-        a *= (uint64_t)4294967296;
-        y = a / r;
-        nums.push_back(y);
-        a %= r;
+        x *= 65536;
+        uint32_t a = trunc(x);
+        nums.push_back(a << 16);
+
+        x -= trunc(x);
+        x *= 65536;
+        nums[nums.size() - 1] += trunc(x);
+
+        x -= trunc(x);
         p -= 32;
     }
 
@@ -221,7 +220,7 @@ std::deque<uint32_t> LongSub(std::deque<uint32_t> a, std::deque<uint32_t> b, int
 }
 
 /*
-функция спавнение
+функция сравнение
 
 -1 a > b
  0 a == b
@@ -233,10 +232,12 @@ int LongBig(std::deque<uint32_t> a, std::deque<uint32_t> b, int per1, int per2)
     {
         a.pop_front();
     }
+
     while (b.size() - per2 > 1 && b[0] == 0)
     {
         b.pop_front();
     }
+
     if (a.size() - per1 == b.size() - per2)
     {
         int i = 0;
@@ -522,7 +523,7 @@ void LongNumber::PrintLongNumber()
               << percision << '\n';
 }
 
-//
+// Literal
 LongNumber LongNumberArithmetics::operator""_longnum(long double number)
 {
     return LongNumber(number, 32);

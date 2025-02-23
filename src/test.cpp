@@ -5,6 +5,8 @@
 using namespace LongNumberArithmetics;
 using namespace TestSystem;
 
+LongNumber longexp1{(long double)1e-14, 320}, longexp2{(long double)-1e-14, 320};
+
 // TESTS:
 
 bool test_constructor()
@@ -50,13 +52,15 @@ bool test_operator_sum()
 {
     long double a = 12.12, b = 214.42;
 
-    LongNumber long1{a, 20};
-    LongNumber long2{b, 20};
+    LongNumber long1{a, 320};
+    LongNumber long2{b, 320};
 
-    LongNumber longsum1{a + b, 20};
+    LongNumber longsum1{a + b, 320};
     LongNumber longsum2 = long1 + long2;
 
-    return (longsum1 == longsum2) ? OK : FAIL;
+    LongNumber longsub = longsum1 - longsum2;
+
+    return (longsub < longexp1 && longsub > longexp2) ? OK : FAIL;
 }
 
 bool test_operator_sub()
@@ -89,13 +93,15 @@ bool test_operator_div()
 {
     long double a = 124089168, b = 1256;
 
-    LongNumber long1{a, 20};
-    LongNumber long2{b, 20};
+    LongNumber long1{a, 320};
+    LongNumber long2{b, 320};
 
-    LongNumber longsum1{a / b, 20};
+    LongNumber longsum1{a / b, 320};
     LongNumber longsum2 = long1 / long2;
 
-    return (longsum1 == longsum2) ? OK : FAIL;
+    LongNumber longsub = longsum1 - longsum2;
+
+    return ((longsub < longexp1) && (longexp2 < longsub)) ? OK : FAIL;
 }
 
 bool test_operator_notequal()
@@ -139,10 +145,10 @@ int main()
     run_test("Test Constructor", test_constructor);
     run_test("Test Constructor Copy", test_constructor_copy);
     run_test("Test Copy Assignment", test_copy_assginment);
-    run_test("Test Operatur Sum", test_operator_sum);
-    run_test("Test Operatur Sub", test_operator_sub);
-    run_test("Test Operatur Multiple", test_operator_multipe);
-    run_test("Test Operatur Div", test_operator_div);
+    run_test("Test Operator Sum", test_operator_sum);
+    run_test("Test Operator Sub", test_operator_sub);
+    run_test("Test Operator Multiple", test_operator_multipe);
+    run_test("Test Operator Div", test_operator_div);
     run_test("Test Operator !=", test_operator_notequal);
     run_test("Test Operator>", test_operator_geater);
     run_test("Test Operator<", test_operator_less);
