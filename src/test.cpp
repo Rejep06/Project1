@@ -136,7 +136,7 @@ bool test_operator_less()
 
 bool test_literal()
 {
-    return (3.5_longnum + 2.7_longnum == 6.2_longnum) ? OK : FAIL;
+    return (3.1_longnum + 2.2_longnum == 5.3_longnum) ? OK : FAIL;
 }
 
 int main()
@@ -153,6 +153,15 @@ int main()
     run_test("Test Operator>", test_operator_geater);
     run_test("Test Operator<", test_operator_less);
     run_test("Test Literal", test_literal);
+
+    LongNumber Pi{(int64_t)0, 320}, a1{(int64_t)1, 320}, on{(int64_t)16, 320};
+    for (int64_t k = 0; k < 10; k++)
+    {
+        LongNumber a2{8 * k + 1, 320}, a3{8 * k + 4, 320}, a4{8 * k + 5, 320}, a5{8 * k + 6, 320};
+        Pi = Pi + (4.0_longnum / a2 - 2.0_longnum / a3 - 1.0_longnum / a4 - 1.0_longnum / a5) / a1;
+        a1 = a1 * on;
+    }
+    Pi.PrintLongNumber();
 
     return EXIT_SUCCESS;
 }

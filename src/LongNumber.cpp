@@ -385,22 +385,39 @@ std::deque<uint32_t> LongDiv(std::deque<uint32_t> a, std::deque<uint32_t> b, int
     {
         a1.push_back(a[j]);
         std::deque<uint32_t> q;
+        uint64_t r;
         if (a1.size() > b.size())
         {
-            uint32_t r = static_cast<uint32_t>((static_cast<uint64_t>(a1[0]) * MAXNUM + a1[1]) / b[0]);
-            q = {r};
+            r = (static_cast<uint64_t>(a1[0]) * MAXNUM + a1[1]) / b[0];
+
+            uint64_t t = r;
+            while (t > 0)
+            {
+                q.push_front(t % MAXNUM);
+                t /= MAXNUM;
+            }
         }
         else
         {
-            q = {a1[0] / b[0]};
+            r = a1[0] / b[0];
+            q = {(uint32_t)r};
         }
 
         std::deque<uint32_t> d = LongMultiple(q, b);
 
-        if (LongBig(a1, d, 0, 0) == -1)
+        while (LongBig(a1, d, 0, 0) == -1)
         {
-            uint32_t r = q[0] - 1;
-            q = {r};
+            r--;
+            q.clear();
+            if (r == 0)
+                q = {0};
+
+            uint64_t t = r;
+            while (t > 0)
+            {
+                q.push_front(t % MAXNUM);
+                t /= MAXNUM;
+            }
             d = LongMultiple(q, b);
         }
 
@@ -409,7 +426,8 @@ std::deque<uint32_t> LongDiv(std::deque<uint32_t> a, std::deque<uint32_t> b, int
 
         a1 = LongSub(a1, d, 0, 0);
 
-        ans.push_back(q[0]);
+        for (auto w : q){
+            ans.push_back(w);}
     }
 
     return ans;
@@ -448,7 +466,7 @@ LongNumber &LongNumber::operator/(const LongNumber &that)
     std::deque<uint32_t> nums2 = that.nums;
     for (int i = 0; i < abs(percision32 - that.percision32); i++)
     {
-        if (percision32 < that.percision)
+        if (percision32 < that.percision32)
             nums.push_back(0);
         else
             nums2.push_back(0);
@@ -526,5 +544,5 @@ void LongNumber::PrintLongNumber()
 // Literal
 LongNumber LongNumberArithmetics::operator""_longnum(long double number)
 {
-    return LongNumber(number, 32);
+    return LongNumber(number, 320);
 }
