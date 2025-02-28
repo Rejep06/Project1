@@ -541,8 +541,15 @@ void LongNumber::PrintLongNumber()
               << percision << '\n';
 }
 
+int literal_precision = 32;
+
+void LongNumberArithmetics::fix_precision_literal(int per)
+{
+    literal_precision = per;
+}
+
 // Literal
 LongNumber LongNumberArithmetics::operator""_longnum(long double number)
 {
-    return LongNumber(number, 320);
+    return LongNumber(number, literal_precision);
 }

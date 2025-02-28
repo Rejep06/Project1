@@ -34,6 +34,7 @@ namespace LongNumberArithmetics
         void PrintLongNumber();
     };
 
+    void fix_precision_literal(int per);
     LongNumber operator""_longnum(long double number);
 
 }
