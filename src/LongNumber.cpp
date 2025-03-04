@@ -313,8 +313,8 @@ std::deque<uint32_t> LongArithmetics(std::deque<uint32_t> a, int *sgn1, std::deq
     return ans;
 }
 
-// оператор +
-LongNumber &LongNumber::operator+(const LongNumber &that)
+// оператор +=
+LongNumber &LongNumber::operator+=(const LongNumber &that)
 {
     nums = LongArithmetics(nums, &sign, that.nums, that.sign, percision32, that.percision32);
     percision32 = std::max(percision32, that.percision32);
@@ -322,13 +322,31 @@ LongNumber &LongNumber::operator+(const LongNumber &that)
     return *this;
 }
 
-// оператор -
-LongNumber &LongNumber::operator-(const LongNumber &that)
+// оператор +
+LongNumber LongNumberArithmetics::operator+(const LongNumber &first, const LongNumber &second){
+    LongNumber copy{first};
+
+    copy += second;
+
+    return copy;
+}
+
+// оператор -=
+LongNumber &LongNumber::operator-=(const LongNumber &that)
 {
     nums = LongArithmetics(nums, &sign, that.nums, -that.sign, percision32, that.percision32);
     percision32 = std::max(percision32, that.percision32);
     percision = std::max(percision, that.percision);
     return *this;
+}
+
+// оператор -
+LongNumber LongNumberArithmetics::operator-(const LongNumber &first, const LongNumber &second){
+    LongNumber copy{first};
+
+    copy -= second;
+    
+    return copy;
 }
 
 // функция умножение
@@ -357,7 +375,8 @@ std::deque<uint32_t> LongMultiple(std::deque<uint32_t> a, std::deque<uint32_t> b
     return ans;
 }
 
-LongNumber &LongNumber::operator*(const LongNumber &that)
+// оператор *=
+LongNumber &LongNumber::operator*=(const LongNumber &that)
 {
     nums = LongMultiple(nums, that.nums);
     for (int j = 0; j < std::min(percision32, that.percision32); j++)
@@ -366,6 +385,15 @@ LongNumber &LongNumber::operator*(const LongNumber &that)
     percision = std::max(percision, that.percision);
     nums[nums.size() - 1] &= (-(1 << (32 - percision % 32)));
     return *this;
+}
+
+// оператор *
+LongNumber LongNumberArithmetics::operator*(const LongNumber &first, const LongNumber &second){
+    LongNumber copy{first};
+
+    copy *= second;
+    
+    return copy;
 }
 
 // Функция деления
@@ -426,8 +454,15 @@ std::deque<uint32_t> LongDiv(std::deque<uint32_t> a, std::deque<uint32_t> b, int
 
         a1 = LongSub(a1, d, 0, 0);
 
-        for (auto w : q){
-            ans.push_back(w);}
+        for (auto w : q)
+        {
+            ans.push_back(w);
+        }
+    }
+
+    while (ans.size() - per > 1 && ans[0] == 0)
+    {
+        ans.pop_front();
     }
 
     return ans;
@@ -456,8 +491,8 @@ bool LongNumber::isZero() const
     return true;
 }
 
-// оператор /
-LongNumber &LongNumber::operator/(const LongNumber &that)
+// оператор /=
+LongNumber &LongNumber::operator/=(const LongNumber &that)
 {
     if (that.isZero())
     {
@@ -475,6 +510,25 @@ LongNumber &LongNumber::operator/(const LongNumber &that)
 
     nums = LongDiv(nums, nums2, percision32);
     sign = sign * that.sign;
+    return *this;
+}
+
+// оператор /
+LongNumber LongNumberArithmetics::operator/(const LongNumber &first, const LongNumber &second){
+    LongNumber copy{first};
+
+    copy /= second;
+    
+    return copy;
+}
+
+// целая часть
+LongNumber &LongNumberArithmetics::LongNumber::get_int()
+{
+    for (int i = nums.size() - percision32; i < nums.size(); i++)
+    {
+        nums[i] = 0;
+    }
     return *this;
 }
 
@@ -553,3 +607,4 @@ LongNumber LongNumberArithmetics::operator""_longnum(long double number)
 {
     return LongNumber(number, literal_precision);
 }
+

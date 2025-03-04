@@ -20,10 +20,13 @@ namespace LongNumberArithmetics
         LongNumber(const LongNumber &that) = default;
 
         LongNumber &operator=(const LongNumber &that) = default;
-        LongNumber &operator+(const LongNumber &that);
-        LongNumber &operator-(const LongNumber &that);
-        LongNumber &operator*(const LongNumber &that);
-        LongNumber &operator/(const LongNumber &that);
+        LongNumber &operator+=(const LongNumber &that);
+        LongNumber &operator-=(const LongNumber &that);
+        LongNumber &operator*=(const LongNumber &that);
+        LongNumber &operator/=(const LongNumber &that);
+        
+        LongNumber &get_int();
+        // LongNumber &to_int();
 
         bool operator==(const LongNumber &that);
         bool isZero() const;
@@ -36,6 +39,10 @@ namespace LongNumberArithmetics
 
     void fix_precision_literal(int per);
     LongNumber operator""_longnum(long double number);
+    LongNumber operator+(const LongNumber &first, const LongNumber &second);
+    LongNumber operator-(const LongNumber &first, const LongNumber &second);
+    LongNumber operator*(const LongNumber &first, const LongNumber &second);
+    LongNumber operator/(const LongNumber &first, const LongNumber &second);
 
 }
 
