@@ -154,6 +154,5 @@ int main()
     run_test("Test Operator<", test_operator_less);
     run_test("Test Literal", test_literal);
 
-
     return EXIT_SUCCESS;
 }

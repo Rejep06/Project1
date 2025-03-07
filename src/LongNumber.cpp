@@ -1,7 +1,9 @@
 #include <LongNumber.hpp>
+#include <compare>
+#include <bitset>
 #include <cmath>
-#include <cstdint>
-#include <deque>
+#include <stdexcept>
+#include <limits>
 #include <iostream>
 
 const uint64_t MAXNUM = (1ull << 32);
@@ -12,8 +14,8 @@ using LongNumber = LongNumberArithmetics::LongNumber;
 
 LongNumber::LongNumber(int64_t x, int per)
 {
-    percision = per;
-    percision32 = (per + 31) / 32;
+    precision = per;
+    precision32 = (per + 31) / 32;
     sign = 1;
 
     if (x < 0)
@@ -27,16 +29,18 @@ LongNumber::LongNumber(int64_t x, int per)
         x /= MAXNUM;
     }
 
-    for (int i = 0; i < percision32; i++)
+    for (int i = 0; i < precision32; i++)
     {
         nums.push_back(0);
     }
 }
 
+LongNumberArithmetics::LongNumber::LongNumber(int64_t x) : LongNumber(x, 0) {}
+
 LongNumber::LongNumber(long double x, int per)
 {
-    percision = per;
-    percision32 = (per + 31) / 32;
+    precision = per;
+    precision32 = (per + 31) / 32;
     sign = 1;
 
     if (x < 0)
@@ -57,7 +61,7 @@ LongNumber::LongNumber(long double x, int per)
 
     x -= trunc(x);
 
-    int p = percision;
+    int p = precision;
     while (p > 0)
     {
         x *= 65536;
@@ -72,7 +76,7 @@ LongNumber::LongNumber(long double x, int per)
         p -= 32;
     }
 
-    nums[nums.size() - 1] &= static_cast<uint32_t>(-(1 << (32 - (percision % 32))));
+    nums[nums.size() - 1] &= static_cast<uint32_t>(-(1 << (32 - (precision % 32))));
 }
 
 // функция для суммы
@@ -316,37 +320,19 @@ std::deque<uint32_t> LongArithmetics(std::deque<uint32_t> a, int *sgn1, std::deq
 // оператор +=
 LongNumber &LongNumber::operator+=(const LongNumber &that)
 {
-    nums = LongArithmetics(nums, &sign, that.nums, that.sign, percision32, that.percision32);
-    percision32 = std::max(percision32, that.percision32);
-    percision = std::max(percision, that.percision);
+    nums = LongArithmetics(nums, &sign, that.nums, that.sign, precision32, that.precision32);
+    precision32 = std::max(precision32, that.precision32);
+    precision = std::max(precision, that.precision);
     return *this;
-}
-
-// оператор +
-LongNumber LongNumberArithmetics::operator+(const LongNumber &first, const LongNumber &second){
-    LongNumber copy{first};
-
-    copy += second;
-
-    return copy;
 }
 
 // оператор -=
 LongNumber &LongNumber::operator-=(const LongNumber &that)
 {
-    nums = LongArithmetics(nums, &sign, that.nums, -that.sign, percision32, that.percision32);
-    percision32 = std::max(percision32, that.percision32);
-    percision = std::max(percision, that.percision);
+    nums = LongArithmetics(nums, &sign, that.nums, -that.sign, precision32, that.precision32);
+    precision32 = std::max(precision32, that.precision32);
+    precision = std::max(precision, that.precision);
     return *this;
-}
-
-// оператор -
-LongNumber LongNumberArithmetics::operator-(const LongNumber &first, const LongNumber &second){
-    LongNumber copy{first};
-
-    copy -= second;
-    
-    return copy;
 }
 
 // функция умножение
@@ -379,21 +365,12 @@ std::deque<uint32_t> LongMultiple(std::deque<uint32_t> a, std::deque<uint32_t> b
 LongNumber &LongNumber::operator*=(const LongNumber &that)
 {
     nums = LongMultiple(nums, that.nums);
-    for (int j = 0; j < std::min(percision32, that.percision32); j++)
+    for (int j = 0; j < std::min(precision32, that.precision32); j++)
         nums.pop_back();
-    percision32 = std::max(percision32, that.percision32);
-    percision = std::max(percision, that.percision);
-    nums[nums.size() - 1] &= (-(1 << (32 - percision % 32)));
+    precision32 = std::max(precision32, that.precision32);
+    precision = std::max(precision, that.precision);
+    nums[nums.size() - 1] &= (-(1 << (32 - precision % 32)));
     return *this;
-}
-
-// оператор *
-LongNumber LongNumberArithmetics::operator*(const LongNumber &first, const LongNumber &second){
-    LongNumber copy{first};
-
-    copy *= second;
-    
-    return copy;
 }
 
 // Функция деления
@@ -468,13 +445,101 @@ std::deque<uint32_t> LongDiv(std::deque<uint32_t> a, std::deque<uint32_t> b, int
     return ans;
 }
 
+//
+LongNumber LongNumber::pow(uint32_t power) const
+{
+    LongNumber res{(int64_t)1, 0}, a = *this;
+    while (power)
+    {
+        if (power & 1)
+            res *= a;
+        a *= a;
+        power >>= 1;
+    }
+    return res;
+}
+
+//
+LongNumber LongNumber::sqrt() const
+{
+    if ((*this).sign < 0)
+    {
+        throw std::invalid_argument("Number is negative");
+    }
+    LongNumber num1 = 0, num2 = 1;
+    while (num1 != num2)
+    {
+        num1 = num2;
+        num2 += *this / num2;
+        num2 >>= 1;
+    }
+    return num2;
+}
+
+//
+std::string LongNumber::toString(uint32_t decimalPrecision) const
+{
+    const LongNumber base = 10;
+    std::string res;
+    LongNumber intPart = (*this).withPrecision(0).abs();
+    while (intPart != 0)
+    {
+        LongNumber q = intPart / base;
+        LongNumber r = intPart - (q * base);
+        if (r == 0)
+        {
+            res += '0';
+        }
+        else
+        {
+            res += std::to_string(r.nums.back());
+        }
+        intPart = q;
+    }
+    if (res.empty())
+    {
+        res += '0';
+    }
+    if (sign == -1)
+    {
+        res += '-';
+    }
+    res.reserve();
+    if (decimalPrecision == 0)
+    {
+        return res;
+    }
+    LongNumber fracPart = ((*this) - (*this).withPrecision(0)).abs();
+    if (fracPart == 0)
+    {
+        return res;
+    }
+    res += '.';
+    unsigned cnt = 0;
+    while (fracPart != 0 && cnt++ < decimalPrecision)
+    {
+        fracPart *= base;
+        LongNumber r = fracPart.withPrecision(0);
+        if (r == 0)
+        {
+            res += '0';
+        }
+        else
+        {
+            res += std::to_string(r.nums.back());
+        }
+        fracPart -= r;
+    }
+    return res;
+}
+
 // оператор ==
 bool LongNumber::operator==(const LongNumber &that)
 {
     if (this == &that)
         return 1;
 
-    int q = LongBig(nums, that.nums, percision32, that.percision32);
+    int q = LongBig(nums, that.nums, precision32, that.precision32);
     return (sign == that.sign && q == 0);
 }
 
@@ -494,38 +559,208 @@ bool LongNumber::isZero() const
 // оператор /=
 LongNumber &LongNumber::operator/=(const LongNumber &that)
 {
-    if (that.isZero())
-    {
-        throw std::runtime_error("Diving to zero!");
-    }
-    std::deque<uint32_t> nums2 = that.nums;
-    for (int i = 0; i < abs(percision32 - that.percision32); i++)
-    {
-        if (percision32 < that.percision32)
-            nums.push_back(0);
-        else
-            nums2.push_back(0);
-    }
-    percision32 = std::max(percision32, that.percision32);
-
-    nums = LongDiv(nums, nums2, percision32);
-    sign = sign * that.sign;
+    *this = *this / that;
     return *this;
 }
 
-// оператор /
-LongNumber LongNumberArithmetics::operator/(const LongNumber &first, const LongNumber &second){
-    LongNumber copy{first};
+//
+LongNumber &LongNumber::operator>>=(uint32_t shift)
+{
+    *this = *this >> shift;
+    return *this;
+}
 
-    copy /= second;
-    
-    return copy;
+//
+LongNumber &LongNumber::operator<<=(uint32_t shift)
+{
+    *this = *this << shift;
+    return *this;
+}
+
+//
+void LongNumber::setPrecision(uint32_t newPrecision)
+{
+    uint32_t newPrecision32 = newPrecision / 32 + (newPrecision % 32 != 0);
+    precision = newPrecision;
+    if (newPrecision32 == precision32)
+    {
+        return;
+    }
+    int diff = newPrecision32 - precision32;
+    precision32 = newPrecision32;
+
+    if (diff > 0)
+    {
+        nums.insert(nums.end(), diff, 0);
+    }
+    else
+    {
+        nums.erase(nums.end() + diff, nums.end());
+    }
+}
+
+//
+LongNumber LongNumber::withPrecision(uint32_t precision) const
+{
+    LongNumber result(*this);
+    result.setPrecision(precision);
+    return result;
+}
+
+//
+LongNumber LongNumber::abs(void) const
+{
+    LongNumber result = *this;
+    result.sign = 1;
+    return result;
+}
+
+namespace LongNumberArithmetics
+{
+    LongNumber operator>>(const LongNumber &number, unsigned shift)
+    {
+        LongNumber result{number};
+        uint32_t numDigits = shift / 32;
+        if (numDigits >= number.nums.size())
+        {
+            return (0.0_longnum).withPrecision(number.precision);
+        }
+        result.nums.erase(result.nums.end() - numDigits, result.nums.end());
+        shift = shift % 32;
+        if (shift)
+        {
+            uint32_t carry = 0;
+            for (int i = 0; i < result.nums.size(); i++)
+            {
+                uint32_t newCarry = result.nums[i] << (32 - shift);
+                result.nums[i] >>= shift;
+                result.nums[i] |= carry;
+                carry = newCarry;
+            }
+        }
+        while (result.nums.size() - result.precision > 0 && result.nums[0] == 0)
+        {
+            result.nums.pop_front();
+        }
+        if (result.nums.size() - result.precision32 < 1)
+            result.nums.push_front(0);
+        return result;
+    }
+
+    // оператор +
+    LongNumber operator+(const LongNumber &first, const LongNumber &second)
+    {
+        LongNumber copy{first};
+
+        copy += second;
+
+        return copy;
+    }
+
+    // оператор *
+    LongNumber operator*(const LongNumber &first, const LongNumber &second)
+    {
+        LongNumber copy{first};
+
+        copy *= second;
+
+        return copy;
+    }
+
+    // оператор -
+    LongNumber operator-(const LongNumber &first, const LongNumber &second)
+    {
+        LongNumber copy{first};
+
+        copy -= second;
+
+        return copy;
+    }
+
+    // оператор /
+    LongNumber operator/(const LongNumber &lnum, const LongNumber &rnum)
+    {
+        if (rnum.isZero())
+        {
+            throw std::invalid_argument("Division by zero");
+        }
+        if (lnum.isZero())
+        {
+            return (0.0_longnum).withPrecision(std::max(lnum.precision, rnum.precision));
+        }
+        uint32_t maxPrecision = std::max(lnum.precision, rnum.precision);
+        uint32_t normPrecision = std::max(maxPrecision, 96U);
+
+        LongNumber l_copy = lnum.abs().withPrecision(normPrecision);
+
+        LongNumber r_copy = rnum.abs().withPrecision(normPrecision);
+
+        l_copy <<= l_copy.precision32 * 32;
+
+        LongNumber result(0.0L, normPrecision);
+        result.sign = lnum.sign * rnum.sign;
+        LongNumber rem(0.0L, normPrecision);
+
+        for (int i = l_copy.nums.size() * 32 - 1; i >= 0; --i)
+        {
+            rem <<= 1;
+            uint32_t digitIndex = i / 32;
+            uint32_t bitIndex = i % 32;
+            bool bit = (l_copy.nums[l_copy.nums.size() - 1 - digitIndex] >> bitIndex) & 1;
+            rem.nums[rem.nums.size() - 1] |= (bit ? 1 : 0);
+            if (rem >= r_copy)
+            {
+                rem -= r_copy;
+                if (digitIndex >= result.nums.size())
+                {
+                    result.nums.resize(digitIndex + 1, 0);
+                }
+                result.nums[result.nums.size() - 1 - digitIndex] |= (1U << bitIndex);
+            }
+        }
+
+        result.setPrecision(maxPrecision);
+        while (result.nums.size() - result.precision32 > 0 && result.nums[0] == 0)
+        {
+            result.nums.pop_front();
+        }
+        if (result.nums.size() - result.precision32 < 1)
+            result.nums.push_front(0);
+        return result;
+    }
+
+    LongNumber operator<<(const LongNumber &number, unsigned shift)
+    {
+        LongNumber result(number);
+        uint32_t newDigits = shift / 32;
+        if (newDigits)
+        {
+            result.nums.insert(result.nums.end(), newDigits, 0);
+        }
+        shift = shift % 32;
+        if (shift)
+        {
+            uint32_t carry = 0;
+            for (int i = result.nums.size() - newDigits - 1; i >= 0; i--)
+            {
+                uint32_t newCarry = result.nums[i] >> (32 - shift);
+                result.nums[i] <<= shift;
+                result.nums[i] |= carry;
+                carry = newCarry;
+            }
+            if (carry)
+            {
+                result.nums.push_front(carry);
+            }
+        }
+        return result;
+    }
 }
 
 // целая часть
 LongNumber &LongNumberArithmetics::LongNumber::get_int()
 {
-    for (int i = nums.size() - percision32; i < nums.size(); i++)
+    for (int i = nums.size() - precision32; i < nums.size(); i++)
     {
         nums[i] = 0;
     }
@@ -541,7 +776,7 @@ bool LongNumber::operator!=(const LongNumber &that)
 // оператор <
 bool LongNumber::operator<(const LongNumber &that)
 {
-    int q = LongBig(nums, that.nums, percision32, that.percision32);
+    int q = LongBig(nums, that.nums, precision32, that.precision32);
     if (sign == that.sign)
     {
         if (sign > 0)
@@ -559,10 +794,16 @@ bool LongNumber::operator<(const LongNumber &that)
     }
 }
 
+//
+bool LongNumber::operator<=(const LongNumber &that)
+{
+    return (*this < that || *this == that);
+}
+
 // оператор >
 bool LongNumber::operator>(const LongNumber &that)
 {
-    int q = LongBig(nums, that.nums, percision32, that.percision32);
+    int q = LongBig(nums, that.nums, precision32, that.precision32);
     if (sign == that.sign)
     {
         if (sign > 0)
@@ -580,6 +821,12 @@ bool LongNumber::operator>(const LongNumber &that)
     }
 }
 
+//
+bool LongNumber::operator>=(const LongNumber &that)
+{
+    return (*this > that || *this == that);
+}
+
 // Тестовая печать на экран
 void LongNumber::PrintLongNumber()
 {
@@ -587,12 +834,12 @@ void LongNumber::PrintLongNumber()
         std::cout << '-';
     for (int i = 0; i < nums.size(); i++)
     {
-        if (i == nums.size() - percision32)
+        if (i == nums.size() - precision32)
             std::cout << '.';
         std::cout << nums[i] << ' ';
     }
     std::cout << '\n'
-              << percision << '\n';
+              << precision << '\n';
 }
 
 int literal_precision = 32;
@@ -608,3 +855,7 @@ LongNumber LongNumberArithmetics::operator""_longnum(long double number)
     return LongNumber(number, literal_precision);
 }
 
+LongNumber LongNumberArithmetics::operator""_longnum(const uint64_t number)
+{
+    return LongNumber{(int64_t)number, 0};
+}
