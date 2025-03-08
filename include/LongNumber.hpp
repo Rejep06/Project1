@@ -30,6 +30,7 @@ namespace LongNumberArithmetics
         LongNumber &operator<<=(uint32_t shift);
 
         LongNumber &get_int();
+        int get();
         void setPrecision(uint32_t newPrecision);
         LongNumber withPrecision(uint32_t precision) const;
         LongNumber abs() const;

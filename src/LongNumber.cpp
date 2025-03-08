@@ -445,7 +445,7 @@ std::deque<uint32_t> LongDiv(std::deque<uint32_t> a, std::deque<uint32_t> b, int
     return ans;
 }
 
-//
+// степень
 LongNumber LongNumber::pow(uint32_t power) const
 {
     LongNumber res{(int64_t)1, 0}, a = *this;
@@ -459,7 +459,7 @@ LongNumber LongNumber::pow(uint32_t power) const
     return res;
 }
 
-//
+// корень
 LongNumber LongNumber::sqrt() const
 {
     if ((*this).sign < 0)
@@ -474,63 +474,6 @@ LongNumber LongNumber::sqrt() const
         num2 >>= 1;
     }
     return num2;
-}
-
-//
-std::string LongNumber::toString(uint32_t decimalPrecision) const
-{
-    const LongNumber base = 10;
-    std::string res;
-    LongNumber intPart = (*this).withPrecision(0).abs();
-    while (intPart != 0)
-    {
-        LongNumber q = intPart / base;
-        LongNumber r = intPart - (q * base);
-        if (r == 0)
-        {
-            res += '0';
-        }
-        else
-        {
-            res += std::to_string(r.nums.back());
-        }
-        intPart = q;
-    }
-    if (res.empty())
-    {
-        res += '0';
-    }
-    if (sign == -1)
-    {
-        res += '-';
-    }
-    res.reserve();
-    if (decimalPrecision == 0)
-    {
-        return res;
-    }
-    LongNumber fracPart = ((*this) - (*this).withPrecision(0)).abs();
-    if (fracPart == 0)
-    {
-        return res;
-    }
-    res += '.';
-    unsigned cnt = 0;
-    while (fracPart != 0 && cnt++ < decimalPrecision)
-    {
-        fracPart *= base;
-        LongNumber r = fracPart.withPrecision(0);
-        if (r == 0)
-        {
-            res += '0';
-        }
-        else
-        {
-            res += std::to_string(r.nums.back());
-        }
-        fracPart -= r;
-    }
-    return res;
 }
 
 // оператор ==
@@ -563,21 +506,21 @@ LongNumber &LongNumber::operator/=(const LongNumber &that)
     return *this;
 }
 
-//
+// оператор >>=
 LongNumber &LongNumber::operator>>=(uint32_t shift)
 {
     *this = *this >> shift;
     return *this;
 }
 
-//
+// оператор <<=
 LongNumber &LongNumber::operator<<=(uint32_t shift)
 {
     *this = *this << shift;
     return *this;
 }
 
-//
+// проседура изменение точности
 void LongNumber::setPrecision(uint32_t newPrecision)
 {
     uint32_t newPrecision32 = newPrecision / 32 + (newPrecision % 32 != 0);
@@ -599,7 +542,7 @@ void LongNumber::setPrecision(uint32_t newPrecision)
     }
 }
 
-//
+// функция изменения точности
 LongNumber LongNumber::withPrecision(uint32_t precision) const
 {
     LongNumber result(*this);
@@ -607,7 +550,7 @@ LongNumber LongNumber::withPrecision(uint32_t precision) const
     return result;
 }
 
-//
+// модул
 LongNumber LongNumber::abs(void) const
 {
     LongNumber result = *this;
@@ -617,6 +560,7 @@ LongNumber LongNumber::abs(void) const
 
 namespace LongNumberArithmetics
 {
+    // оператор >>
     LongNumber operator>>(const LongNumber &number, unsigned shift)
     {
         LongNumber result{number};
@@ -729,6 +673,7 @@ namespace LongNumberArithmetics
         return result;
     }
 
+    // оператор <<
     LongNumber operator<<(const LongNumber &number, unsigned shift)
     {
         LongNumber result(number);
@@ -767,6 +712,12 @@ LongNumber &LongNumberArithmetics::LongNumber::get_int()
     return *this;
 }
 
+// старший цифр
+int LongNumberArithmetics::LongNumber::get()
+{
+    return nums[0];
+}
+
 // оператор !=
 bool LongNumber::operator!=(const LongNumber &that)
 {
@@ -794,7 +745,7 @@ bool LongNumber::operator<(const LongNumber &that)
     }
 }
 
-//
+// оператор <=
 bool LongNumber::operator<=(const LongNumber &that)
 {
     return (*this < that || *this == that);
@@ -821,7 +772,7 @@ bool LongNumber::operator>(const LongNumber &that)
     }
 }
 
-//
+// оператор >=
 bool LongNumber::operator>=(const LongNumber &that)
 {
     return (*this > that || *this == that);
@@ -838,11 +789,13 @@ void LongNumber::PrintLongNumber()
             std::cout << '.';
         std::cout << nums[i]; //<< ' ';
     }
-    std::cout << '\n' << precision << '\n';
+    std::cout << '\n'
+              << precision << '\n';
 }
 
 int literal_precision = 32;
 
+// фиксация точности для литерала
 void LongNumberArithmetics::fix_precision_literal(int per)
 {
     literal_precision = per;
