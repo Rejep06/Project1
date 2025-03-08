@@ -836,10 +836,9 @@ void LongNumber::PrintLongNumber()
     {
         if (i == nums.size() - precision32)
             std::cout << '.';
-        std::cout << nums[i] << ' ';
+        std::cout << nums[i]; //<< ' ';
     }
-    std::cout << '\n'
-              << precision << '\n';
+    std::cout << '\n' << precision << '\n';
 }
 
 int literal_precision = 32;
