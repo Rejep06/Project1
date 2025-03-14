@@ -12,7 +12,7 @@
 
 using namespace TestSystem;
 
-TestResult TestSystem::run_test(const char *name, TestScenario test, size_t timeout_ms, bool inspect)
+TestResult TestSystem::run_test(const char *name, TestScenario test, size_t timeout_ms [[maybe_unused]], bool inspect [[maybe_unused]])
 {
     printf("Running test %20s: ", name);
     fflush(stdout);

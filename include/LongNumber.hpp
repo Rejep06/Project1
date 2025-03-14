@@ -11,7 +11,8 @@ namespace LongNumberArithmetics
     {
     private:
         std::deque<uint32_t> nums;
-        int sign, precision, precision32;
+        int sign, precision;
+        uint32_t precision32;
 
     public:
         LongNumber(int64_t x, int per);
@@ -60,7 +61,7 @@ namespace LongNumberArithmetics
     void fix_precision_literal(int per);
     LongNumber operator""_longnum(long double number);
 
-    LongNumber operator""_longnum(const uint64_t number);
+    // LongNumber operator""_longnum(const uint64_t number);
 
 };
 

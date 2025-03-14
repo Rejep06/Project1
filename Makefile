@@ -23,7 +23,7 @@ SOURCES := $(wildcard src/*.cpp)
 OBJECTS := $(SOURCES:src/%.cpp=build/%.o)
 
 # Итоговые исполняемые файлы
-EXECUTABLE = build/eval
+EXECUTABLE = build/get_pi
 TEST_EXECUTABLE = build/test
 
 # Главная цель
@@ -52,12 +52,12 @@ build:
 run: $(EXECUTABLE)
 	@printf "Running executable\n"
 	@mkdir -p res
-	@./$(EXECUTABLE)
+	@./$(EXECUTABLE) $(PRECISION)
 
 # Запуск тестов
 test: $(TEST_EXECUTABLE)
 	@printf "Running tests\n"
-	@./$(TEST_EXECUTABLE)
+	@./$(TEST_EXECUTABLE) 
 
 # Очистка
 clean:

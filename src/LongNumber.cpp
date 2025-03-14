@@ -29,7 +29,7 @@ LongNumber::LongNumber(int64_t x, int per)
         x /= MAXNUM;
     }
 
-    for (int i = 0; i < precision32; i++)
+    for (uint32_t i = 0; i < precision32; i++)
     {
         nums.push_back(0);
     }
@@ -83,7 +83,7 @@ LongNumber::LongNumber(long double x, int per)
 std::deque<uint32_t> LongSum(std::deque<uint32_t> a, std::deque<uint32_t> b, int per1, int per2)
 {
     std::deque<uint32_t> sum;
-    int i = per1, j = per2;
+    auto i = per1, j = per2;
     uint64_t r = 0;
     while (i != 0)
     {
@@ -244,7 +244,7 @@ int LongBig(std::deque<uint32_t> a, std::deque<uint32_t> b, int per1, int per2)
 
     if (a.size() - per1 == b.size() - per2)
     {
-        int i = 0;
+        std::deque<unsigned int>::size_type i = 0;
         while (i < a.size() && i < b.size())
         {
             if (a[i] > b[i])
@@ -255,7 +255,7 @@ int LongBig(std::deque<uint32_t> a, std::deque<uint32_t> b, int per1, int per2)
             {
                 return -1;
             }
-            i++;
+            i+=1;
         }
 
         if (i < a.size())
@@ -365,7 +365,7 @@ std::deque<uint32_t> LongMultiple(std::deque<uint32_t> a, std::deque<uint32_t> b
 LongNumber &LongNumber::operator*=(const LongNumber &that)
 {
     nums = LongMultiple(nums, that.nums);
-    for (int j = 0; j < std::min(precision32, that.precision32); j++)
+    for (uint32_t j = 0; j < std::min(precision32, that.precision32); j++)
         nums.pop_back();
     precision32 = std::max(precision32, that.precision32);
     precision = std::max(precision, that.precision);
@@ -378,15 +378,15 @@ std::deque<uint32_t> LongDiv(std::deque<uint32_t> a, std::deque<uint32_t> b, int
 {
     std::deque<uint32_t> ans;
     std::deque<uint32_t> a1;
-    for (int i = 0; i < b.size() - 1; i++)
+    for (std::deque<unsigned int>::size_type i = 0; i < b.size() - 1; i++)
     {
         a1.push_back(a[i]);
     }
 
-    for (int i = 0; i < per; i++)
+    for (auto i = 0; i < per; i++)
         a.push_back(0);
 
-    for (int j = b.size() - 1; j < a.size(); j++)
+    for (auto j = b.size() - 1; j < a.size(); j++)
     {
         a1.push_back(a[j]);
         std::deque<uint32_t> q;
@@ -489,7 +489,7 @@ bool LongNumber::operator==(const LongNumber &that)
 // метод проверка на ноль
 bool LongNumber::isZero() const
 {
-    for (uint32_t num : nums)
+    for (auto num : nums)
     {
         if (num != 0)
         {
@@ -574,7 +574,7 @@ namespace LongNumberArithmetics
         if (shift)
         {
             uint32_t carry = 0;
-            for (int i = 0; i < result.nums.size(); i++)
+            for (std::deque<unsigned int>::size_type i = 0; i < result.nums.size(); i++)
             {
                 uint32_t newCarry = result.nums[i] << (32 - shift);
                 result.nums[i] >>= shift;
@@ -645,7 +645,7 @@ namespace LongNumberArithmetics
         result.sign = lnum.sign * rnum.sign;
         LongNumber rem(0.0L, normPrecision);
 
-        for (int i = l_copy.nums.size() * 32 - 1; i >= 0; --i)
+        for (int i = static_cast<int>(l_copy.nums.size()) * 32 - 1; i >= 0; --i)
         {
             rem <<= 1;
             uint32_t digitIndex = i / 32;
@@ -686,7 +686,7 @@ namespace LongNumberArithmetics
         if (shift)
         {
             uint32_t carry = 0;
-            for (int i = result.nums.size() - newDigits - 1; i >= 0; i--)
+            for (int i = static_cast<int>(result.nums.size()) - newDigits - 1; i >= 0; i--)
             {
                 uint32_t newCarry = result.nums[i] >> (32 - shift);
                 result.nums[i] <<= shift;
@@ -705,7 +705,7 @@ namespace LongNumberArithmetics
 // целая часть
 LongNumber &LongNumberArithmetics::LongNumber::get_int()
 {
-    for (int i = nums.size() - precision32; i < nums.size(); i++)
+    for (auto i = nums.size() - precision32; i < nums.size(); i++)
     {
         nums[i] = 0;
     }
@@ -783,7 +783,7 @@ void LongNumber::PrintLongNumber()
 {
     if (sign == -1)
         std::cout << '-';
-    for (int i = 0; i < nums.size(); i++)
+    for (std::deque<unsigned int>::size_type i = 0; i < nums.size(); i++)
     {
         if (i == nums.size() - precision32)
             std::cout << '.';
@@ -807,7 +807,7 @@ LongNumber LongNumberArithmetics::operator""_longnum(long double number)
     return LongNumber(number, literal_precision);
 }
 
-LongNumber LongNumberArithmetics::operator""_longnum(const uint64_t number)
-{
-    return LongNumber{(int64_t)number, 0};
-}
+// LongNumber LongNumberArithmetics::operator""_longnum(const uint64_t number)
+// {
+//     return LongNumber{(int64_t)number, 0};
+// }
