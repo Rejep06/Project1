@@ -1,26 +1,67 @@
-# Определение компилятора и флагов
+# Компилятор
 CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++17 -Iinclude
 
-# Определение исходных файлов и объекта
-SRC = src/expression.cpp src/eval.cpp
-OBJ = $(SRC:.cpp=.o)
-BIN = bin/program
+# Флаги компиляции
+CXXFLAGS = -std=c++20 -Wall -Wextra -Werror
 
-# Основная цель компиляции
-all: $(BIN)
+# Флаги линковки
+LDFLAGS =
 
-$(BIN): $(OBJ)
-	$(CXX) $(OBJ) -o $(BIN)
+# Если включена отладка
+ifeq ($(DEBUG),1)
+    CXXFLAGS += -g
+else
+    CXXFLAGS += -flto -DNDEBUG
+    LDFLAGS  += -flto
+endif
 
-# Цель для компиляции .cpp в .o файлы
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+# Пути к заголовочным файлам
+CXXFLAGS += -I $(abspath include)
 
-# Цель для запуска программы после компиляции
-run: $(BIN)
-	./$(BIN)
+# Поиск всех исходников
+SOURCES := $(wildcard src/*.cpp)
+OBJECTS := $(SOURCES:src/%.cpp=build/%.o)
 
-# Очищаем промежуточные файлы
+# Итоговые исполняемые файлы
+EXECUTABLE = build/eval
+TEST_EXECUTABLE = build/test
+
+# Главная цель
+default: $(EXECUTABLE)
+
+# Линковка для eval.cpp
+$(EXECUTABLE): $(filter-out build/test.o, $(OBJECTS)) | build
+	@printf "Linking executable $(EXECUTABLE)\n"
+	$(CXX) $(LDFLAGS) $(filter-out build/test.o, $(OBJECTS)) -o $@
+
+# Линковка для тестов (включаются все исходники кроме eval.cpp)
+$(TEST_EXECUTABLE): $(filter-out src/get_pi.cpp, $(SOURCES)) | build
+	@printf "Building test executable $(TEST_EXECUTABLE)\n"
+	$(CXX) $(CXXFLAGS) $(filter-out src/get_pi.cpp, $(SOURCES)) -o $@
+
+# Компиляция всех .cpp в .o
+build/%.o: src/%.cpp | build
+	@printf "Building object file $@\n"
+	$(CXX) -c $< $(CXXFLAGS) -o $@
+
+# Создание папки build
+build:
+	mkdir -p build
+
+# Запуск eval (не линковать test.cpp)
+run: $(EXECUTABLE)
+	@printf "Running executable\n"
+	@mkdir -p res
+	@./$(EXECUTABLE)
+
+# Запуск тестов
+test: $(TEST_EXECUTABLE)
+	@printf "Running tests\n"
+	@./$(TEST_EXECUTABLE)
+
+# Очистка
 clean:
-	rm -f $(OBJ) $(BIN)
+	@printf "Cleaning build and resource directories\n"
+	rm -rf res build
+
+.PHONY: default run test clean
